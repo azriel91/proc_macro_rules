@@ -14,8 +14,6 @@ Azriel Hoh
 
 ### Preamble: `macro_rules!`
 
-[<img src="assets/images/ferris.png" width="50" height="33" /> playground](https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=d1d52c0a2536f9f121b5f7dd9197d5bb)
-
 ```rust
 macro_rules! hello {
     () => { println!("Hello") };
@@ -34,11 +32,13 @@ fn main() {
 }
 ```
 
+[<img src="assets/images/ferris.png" width="50" height="33" />](https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=d1d52c0a2536f9f121b5f7dd9197d5bb)
+
 +++
 
 ### Preamble: `macro_rules!`
 
-`macro_rules!` is happy to take any token tree [<img src="assets/images/ferris.png" width="50" height="33" />](https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=d1d52c0a2536f9f121b5f7dd9197d5bb):
+`macro_rules!` is happy to take any token tree:
 
 ```rust
 macro_rules! java {
@@ -58,11 +58,13 @@ java! {
 }
 ```
 
+[<img src="assets/images/ferris.png" width="50" height="33" />](https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=c66e5c876886a2ef19655181cef37d2d)
+
 +++
 
 ### Preamble: `macro_rules!`
 
-However [<img src="assets/images/ferris.png" width="50" height="33" />](https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=d1d52c0a2536f9f121b5f7dd9197d5bb):
+However:
 
 * Very unintuitive failures and errors.
 * Can be very difficult to troubleshoot.
@@ -79,6 +81,8 @@ macro_rules! java {
     };
 }
 ```
+
+[<img src="assets/images/ferris.png" width="50" height="33" />](https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=f86e0451be3a7545af6875ce46530571)
 
 ---
 
@@ -162,7 +166,7 @@ For developers:
 1. Attached to a struct / enum.
 2. Generates *additional* tokens.
 3. Can have *helper* attributes.
-3. **Cannot** see other attributes / derives.
+4. **Cannot** see other attributes / derives.
 
 +++
 
@@ -223,6 +227,48 @@ What you **can't** do:
 2. Erring.
 3. `quote`: Variables must be single layer.
 4. `cargo expand --test test inner`
+
+---
+
+### Attribute Macros
+
++++
+
+### Attribute Macros
+
+1. See everything about an *item*.
+2. Takes in tokens, and outputs *replacement* tokens.
+
++++
+
+### Attribute Macros
+
+Example: [🚀](https://github.com/SergioBenitez/Rocket/blob/v0.4.0/core/codegen/src/lib.rs#L309-L317) Rocket framework
+
+```rust
+#[get("/<name>/<age>")]
+fn hello(name: String, age: u8) -> String {
+    format!("Hello, {} year old named {}!", age, name)
+}
+
+fn main() {
+    rocket::ignite().mount("/hello", routes![hello]).launch();
+}
+```
+
+---
+
+### Informative
+
++++
+
+### Informative
+
+|               | Derive    | Function      | Attribute   |
+| ------------- | --------- | ------------- | ----------- |
+| Stable since  | 1.15      | 1.30          | 1.30        |
+| Mutates input | ❌ No    | ✔️ Yes        | ✔️ Yes     |
+| Applies to    | 💠 types | 🔵 any tokens | ⚪ any item |
 
 ---
 
