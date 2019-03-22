@@ -12,7 +12,9 @@ pub fn function_like(_item: TokenStream) -> TokenStream {
 
 #[proc_macro]
 pub fn rename(item: TokenStream) -> TokenStream {
+    // https://docs.rs/syn/0.15.29/syn/struct.ItemFn.html
     let mut item_fn = syn::parse::<ItemFn>(item).expect("Failed to parse.");
+
     let name = {
         let statement = item_fn.block.stmts.first().expect("Expected one statement");
         if let Stmt::Expr(Expr::Lit(ExprLit {

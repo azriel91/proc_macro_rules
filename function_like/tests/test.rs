@@ -8,7 +8,10 @@ fn test_hello() {
 }
 
 rename! {
-    pub fn name<T>() -> &'static str where T: Clone { "tom" }
+    pub fn name<T>() -> &'static str where T: Clone {
+        // hello
+        "tom"
+    }
 }
 
 rename! {
