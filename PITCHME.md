@@ -6,16 +6,72 @@ Azriel Hoh
 
 ### Agenda
 
+* Why macros?
+* Re-look at `macro_rules!`.
+* Procedural macros: What and why.
+* Live demos.
+    - Function Like.
+    - Derive Macros.
+    - Attribute Macros.
+* Learnings
+* Summary
+
 ---
 
-### Preamble: `macro_rules!`
+### Macros
 
 +++
 
-### Preamble: `macro_rules!`
+### Macros
+
+When would you use macros?
+
+* Increase ergonomics.
+* Reduce duplication.
+* Reduce boilerplate
+
++++
+
+### Macros: Increase Ergonomics
+
+[<img src="assets/images/ferris.png" width="50" height="33" />](https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=54baea61f79020af41e8d5843124ac53) `impl Trait for Type` to `#[derive(Trait)]` [<img src="assets/images/ferris.png" width="50" height="33" />](https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=550bab87af4a4d91cc5eebd0d06373cb)
+
++++
+
+### Macros: Reduce Duplication
+
+[<img src="assets/images/ferris.png" width="50" height="33" />](https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=3533ef5f21cc9156417c089f7cc3d04f) De-duplicating similar implementations [<img src="assets/images/ferris.png" width="50" height="33" />](https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=2da6a5967cff11579db5f4034126144c)
+
++++
+
+### Macros: Reduce Boilerplate
+
+[🚀](https://github.com/SergioBenitez/Rocket/blob/v0.4.0/core/codegen/src/lib.rs#L309-L317) Rocket web framework:
+
+```rust
+#[get("/<name>/<age>")]
+fn hello(name: String, age: u8) -> String {
+    format!("Hello, {} year old named {}!", age, name)
+}
+
+fn main() {
+    rocket::ignite().mount("/hello", routes![hello]).launch();
+}
+```
+
+---
+
+### `macro_rules!`
+
++++
+
+### `macro_rules!`
+
+Reminder [<img src="assets/images/ferris.png" width="50" height="33" />](https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=d1d52c0a2536f9f121b5f7dd9197d5bb):
 
 ```rust
 macro_rules! hello {
+    // Match a pattern, output tokens
     () => { println!("Hello") };
 }
 
@@ -32,11 +88,9 @@ fn main() {
 }
 ```
 
-[<img src="assets/images/ferris.png" width="50" height="33" />](https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=d1d52c0a2536f9f121b5f7dd9197d5bb)
-
 +++
 
-### Preamble: `macro_rules!`
+### `macro_rules!`
 
 `macro_rules!` is happy to take any token tree:
 
@@ -62,10 +116,9 @@ java! {
 
 +++
 
-### Preamble: `macro_rules!`
+### `macro_rules!`
 
-However:
-
+* Items are captured as *whole*s, and cannot be broken down within the macro body.
 * Very unintuitive failures and errors.
 * Can be very difficult to troubleshoot.
 
@@ -92,9 +145,13 @@ macro_rules! java {
 
 ### What Are Proc Macros?
 
-Macros defined with procedural code.
+* Macros defined with procedural code.
+* Tokens are parsed into an AST, and code can reason over that generate the output.
+* Not hygienic
 
-Tokens are parsed into an AST, and code can reason over that generate the output.
+```
+Tokens --[parse]--> AST --[logic]--> Tokens
+```
 
 +++
 
@@ -271,7 +328,7 @@ What you **can't** do:
 
 ### Attribute Macros
 
-Example: [🚀](https://github.com/SergioBenitez/Rocket/blob/v0.4.0/core/codegen/src/lib.rs#L309-L317) Rocket web framework
+[🚀](https://github.com/SergioBenitez/Rocket/blob/v0.4.0/core/codegen/src/lib.rs#L309-L317) Rocket web framework
 
 ```rust
 #[get("/<name>/<age>")]
@@ -302,22 +359,139 @@ fn main() {
 // * `derive_more::Sub`
 // * `derive_more::SubAssign`
 #[numeric_newtype]
-pub struct Wait(pub u32);
+pub struct HealthPoints(pub u32);
 ```
 
 +++
 
 ### Attribute Macros
 
-
+**Demo:** see `attribute` crate in repository.
 
 ---
 
-### Informative
+### Proc Macros: How
 
 +++
 
-### Informative
+### Proc Macros: How
+
+How to get started:
+
+* @size[0.7em](Blog: https://blog.rust-lang.org/2018/12/21/Procedural-Macros-in-Rust-2018.html)
+* @size[0.7em](Reference: https://doc.rust-lang.org/reference/procedural-macros.html)
+
++++
+
+### Proc Macros: How
+
+Crates you will encounter:
+
+* `syn`
+* `quote`
+* `proc_macro`
+* `proc_macro2`
+
++++
+
+### Proc Macros: How
+
+<img src="assets/images/crates_syn_proc_quote.png" width="800" height="400" />
+
++++
+
+### Proc Macros: How
+
+If you need help:
+
+* Community Discord server: https://bit.ly/rust-community `#macros` channel
+
+---
+
+### Learnings
+
++++
+
+### Learnings
+
+Use qualified type names when referring to a type/trait that is likely to be overloaded, and the module path is *known*:
+
+* `std`: avoids name collisions.
+* **re-exported crate:** consumers do not have to depend on transitive dependencies.
+
+This avoids ambiguity such as `Result<T, E>` vs `io::Result<T>`:
+
+```rust
+#[derive(Imaginary)]
+pub struct Config;
+
+/// derive Imaginary implementation
+let token_stream2 = quote! {
+    impl #name {
+        // do:
+        pub fn imagine(&self) -> std::result::Result<Self, String> {
+            unimplemented!()
+        }
+
+        // don't:
+        // Fails if there is a `use crate::Result;` in scope.
+        pub fn imagine(&self) -> Result<Self, String> {
+            unimplemented!()
+        }
+    }
+};
+```
+
++++
+
+### Learnings
+
+Using non-qualified names means consumers have to `use dep::Type`, but it means the macro is friendlier if dep is re-exported:
+
+```rust
+// Your crate
+pub use specs as ecs;
+
+// Consumer
+#[derive(Component)]
+pub struct Position(f32, f32, f32);
+```
+
++++
+
+### Learnings
+
+Prefix attributes with crate name to avoid collision:
+
+```rust
+use serde::Serialize;
+use structopt::StructOpt;
+use strum_macros::EnumString;
+
+#[derive(EnumString, Serialize, StructOpt)]
+#[serde(rename_all = "snake_case")]
+#[strum(serialize_all = "snake_case")]
+#[structopt(rename_all = "snake_case")]
+pub enum SubCommands {
+    Add,
+    Remove,
+}
+```
+
++++
+
+### Learnings
+
+* `cargo expand` helps a lot!
+* Unless you output non-well-formed tokens.
+
+---
+
+### Summary
+
++++
+
+### Summary
 
 |               | Derive    | Function      | Attribute   |
 | ------------- | --------- | ------------- | ----------- |
@@ -327,18 +501,14 @@ pub struct Wait(pub u32);
 
 ---
 
-> **Remember:** Don't be too caught up in questioning
-> what you could do, that you forget to question if
-> it's something you should do.
-
----
-
 ### Links
 
 * @size[0.7em](Slides: https://github.com/azriel91/proc_macro_rules)
 * @size[0.7em](Blog: https://blog.rust-lang.org/2018/12/21/Procedural-Macros-in-Rust-2018.html)
 * @size[0.7em](Reference: https://doc.rust-lang.org/reference/procedural-macros.html)
 * @size[0.7em](syn: https://github.com/dtolnay/syn)
+* @size[0.7em](proc-macro2: https://github.com/alexcrichton/proc-macro2)
+* @size[0.7em](quote: https://github.com/dtolnay/quote)
 * @size[0.7em](macro_rules!: https://danielkeep.github.io/tlborm/book/mbe-macro-rules.html)
 
 ---
