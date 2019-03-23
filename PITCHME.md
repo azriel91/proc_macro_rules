@@ -102,12 +102,12 @@ Tokens are parsed into an AST, and code can reason over that generate the output
 
 ```rust
 // Any of:
-function_like!("Indistinguiable from `macro_rules!`");
+function_like!("Looks just like `macro_rules!`");
 function_like! {
-    "Indistinguiable from `macro_rules!`"
+    "Looks just like `macro_rules!`"
 }
 
-#[derive(Debug, CustomDerive)]
+#[derive(CustomDerive)]
 struct Hello;
 
 #[custom_attribute]
@@ -142,6 +142,20 @@ For developers:
 
 ### Function Like
 
+Look like this:
+
+```rust
+custom_macro!("args");
+custom_macro!["args", "more args"];
+custom_macro! {
+    struct Struct {}
+}
+```
+
++++
+
+### Function Like
+
 1. Takes in *any* well-formed tokens.
 2. Outputs other tokens that are compiled.
 
@@ -163,10 +177,25 @@ For developers:
 
 ### Derive Macros
 
+Look like this:
+
+```rust
+#[derive(CustomDerive)]
+struct Struct;
+
+// and even
+#[derive(a_crate::CustomDerive)]
+struct Struct;
+```
+
++++
+
+### Derive Macros
+
 1. Attached to a struct / enum.
 2. Generates *additional* tokens.
 3. Can have *helper* attributes.
-4. **Cannot** see other attributes / derives.
+4. **Cannot** see derive meta item.
 
 +++
 
@@ -192,11 +221,10 @@ pub struct Struct {
 Your macro will see:
 
 ```rust
-// Missing: Clone, SomeoneElsesDerive, Debug
-// #[someone_elses_attr]
+// Missing: #[derive(Clone, CustomDerive, SomeoneElsesDerive, Debug)]
 
-#[derive(CustomDerive)]
 #[doc = "Documentation for a struct."]
+#[someone_elses_attr]
 #[custom_derive_helper_1]
 pub struct Struct {
     #[custom_derive_helper_2(value = "Something")]
@@ -226,7 +254,7 @@ What you **can't** do:
 1. Parsing.
 2. Erring.
 3. `quote`: Variables must be single layer.
-4. `cargo expand --test test inner`
+4. `cargo expand`
 
 ---
 
@@ -243,7 +271,7 @@ What you **can't** do:
 
 ### Attribute Macros
 
-Example: [🚀](https://github.com/SergioBenitez/Rocket/blob/v0.4.0/core/codegen/src/lib.rs#L309-L317) Rocket framework
+Example: [🚀](https://github.com/SergioBenitez/Rocket/blob/v0.4.0/core/codegen/src/lib.rs#L309-L317) Rocket web framework
 
 ```rust
 #[get("/<name>/<age>")]
@@ -255,6 +283,33 @@ fn main() {
     rocket::ignite().mount("/hello", routes![hello]).launch();
 }
 ```
+
++++
+
+### Attribute Macros
+
+```rust
+// Derives the following traits:
+//
+// * `Clone`
+// * `Copy`
+// * `Deref`
+// * `DerefMut`
+// * `derive_more::Add`
+// * `derive_more::AddAssign`
+// * `derive_more::Display`
+// * `derive_more::From`
+// * `derive_more::Sub`
+// * `derive_more::SubAssign`
+#[numeric_newtype]
+pub struct Wait(pub u32);
+```
+
++++
+
+### Attribute Macros
+
+
 
 ---
 
