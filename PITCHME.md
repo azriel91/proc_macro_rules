@@ -139,6 +139,10 @@ macro_rules! java {
 
 ---
 
+### Breather
+
+---
+
 ### Proc Macros
 
 +++
@@ -229,6 +233,10 @@ function_like! {
 
 ---
 
+### Breather
+
+---
+
 ### Derive Macros
 
 +++
@@ -316,6 +324,10 @@ What you **can't** do:
 
 ---
 
+### Breather
+
+---
+
 ### Attribute Macros
 
 +++
@@ -368,6 +380,10 @@ pub struct HealthPoints(pub u32);
 ### Attribute Macros
 
 **Demo:** see `attribute` crate in repository.
+
+---
+
+### Breather
 
 ---
 
@@ -448,6 +464,7 @@ Using non-qualified names means consumers have to `use dep::Type`, but it means 
 ```rust
 // Proc macro: `specs_derive::Component`:
 // impl Component for #name { .. }
+// impl specs::Component for #name { .. }
 
 // Library: amethyst
 pub use specs as ecs;
@@ -531,6 +548,12 @@ What you can't do:
 | Stable since  | 1.15      | 1.30          | 1.30        |
 | Mutates input | ❌ No    | ✔️ Yes        | ✔️ Yes     |
 | Applies to    | 💠 types | 🔵 any tokens | ⚪ any item |
+
+---
+
+### Thanks
+
+* Grid AKL for hosting us
 
 ---
 
