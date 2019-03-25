@@ -399,14 +399,6 @@ Crates you will encounter:
 
 <img src="assets/images/crates_syn_proc_quote.png" width="800" height="400" />
 
-+++
-
-### Proc Macros: How
-
-If you need help:
-
-* Community Discord server: https://bit.ly/rust-community `#macros` channel
-
 ---
 
 ### Learnings
@@ -419,6 +411,10 @@ Use qualified type names when referring to a type/trait that is likely to be ove
 
 * `std`: avoids name collisions.
 * **re-exported crate:** consumers do not have to depend on transitive dependencies.
+
++++
+
+### Learnings
 
 This avoids ambiguity such as `Result<T, E>` vs `io::Result<T>`:
 
@@ -450,12 +446,21 @@ let token_stream2 = quote! {
 Using non-qualified names means consumers have to `use dep::Type`, but it means the macro is friendlier if dep is re-exported:
 
 ```rust
-// Your crate
+// Proc macro: `specs_derive::Component`:
+// impl Component for #name { .. }
+
+// Library: amethyst
 pub use specs as ecs;
 
 // Consumer
-#[derive(Component)]
+use amethyst::ecs::Component;
+
+#[derive(specs_derive::Component)]
 pub struct Position(f32, f32, f32);
+
+// Otherwise consumer has to:
+use amethyst::ecs as specs; // or
+use specs; // and specify `specs = "VERSION"` in Cargo.toml
 ```
 
 +++
@@ -486,6 +491,15 @@ pub enum SubCommands {
 * `cargo expand` helps a lot!
 * Unless you output non-well-formed tokens.
 
++++
+
+### Learnings
+
+If you need help:
+
+* Community Discord server:  
+  https://bit.ly/rust-community `#macros` channel
+
 ---
 
 ### Informative
@@ -505,6 +519,8 @@ What you can't do:
     ```
 
 * Output warnings with span information.
+
+    Pending https://github.com/rust-lang/rust/issues/54140
 
 +++
 
