@@ -29,6 +29,21 @@ pub mod noop {
         string
     }
 
+    pub fn generic<
+        // #[noop]
+        T,
+    >(
+        // #[noop]
+        _: T,
+    ) -> T
+    // #[noop]
+    where
+        // #[noop]
+        T: Default,
+    {
+        Default::default()
+    }
+
     // #[noop]
     mod inner {}
 }

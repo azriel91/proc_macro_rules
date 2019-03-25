@@ -7,10 +7,16 @@ use syn::{Expr, ExprLit, Ident, ItemFn, Lit, Stmt};
 
 #[proc_macro]
 pub fn function_like(_token_stream: TokenStream) -> TokenStream {
-    // if !token_stream.is_empty() {
-    //     panic!("Expected no arguments to this macro.");
-    // }
     "fn hello() -> &'static str { \"rara\" }".parse().unwrap()
+}
+
+#[proc_macro]
+pub fn ensure_empty(token_stream: TokenStream) -> TokenStream {
+    if !token_stream.is_empty() {
+        panic!("Expected no arguments to this macro.");
+    }
+
+    "".parse().unwrap()
 }
 
 #[proc_macro]

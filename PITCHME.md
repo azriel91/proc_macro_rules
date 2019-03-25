@@ -14,7 +14,7 @@ Azriel Hoh
     - Derive Macros.
     - Attribute Macros.
 * Learnings
-* Summary
+* Informative
 
 ---
 
@@ -24,11 +24,11 @@ Azriel Hoh
 
 ### Macros
 
-When would you use macros?
+Why would you use macros?
 
 * Increase ergonomics.
 * Reduce duplication.
-* Reduce boilerplate
+* Reduce boilerplate.
 
 +++
 
@@ -49,6 +49,8 @@ When would you use macros?
 [🚀](https://github.com/SergioBenitez/Rocket/blob/v0.4.0/core/codegen/src/lib.rs#L309-L317) Rocket web framework:
 
 ```rust
+#![feature(proc_macro_hygiene, decl_macro)]
+
 #[get("/<name>/<age>")]
 fn hello(name: String, age: u8) -> String {
     format!("Hello, {} year old named {}!", age, name)
@@ -67,7 +69,7 @@ fn main() {
 
 ### `macro_rules!`
 
-Reminder [<img src="assets/images/ferris.png" width="50" height="33" />](https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=d1d52c0a2536f9f121b5f7dd9197d5bb):
+Refresher [<img src="assets/images/ferris.png" width="50" height="33" />](https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=6b314ca35a74c443dc8cd181bf01bac0):
 
 ```rust
 macro_rules! hello {
@@ -92,7 +94,7 @@ fn main() {
 
 ### `macro_rules!`
 
-`macro_rules!` is happy to take any token tree:
+`macro_rules!` is happy to take any token tree [<img src="assets/images/ferris.png" width="50" height="33" />](https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=c66e5c876886a2ef19655181cef37d2d):
 
 ```rust
 macro_rules! java {
@@ -111,8 +113,6 @@ java! {
     }
 }
 ```
-
-[<img src="assets/images/ferris.png" width="50" height="33" />](https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=c66e5c876886a2ef19655181cef37d2d)
 
 +++
 
@@ -146,11 +146,11 @@ macro_rules! java {
 ### What Are Proc Macros?
 
 * Macros defined with procedural code.
-* Tokens are parsed into an AST, and code can reason over that generate the output.
-* Not hygienic
+* Tokens are parsed into an AST, and code can reason over that generate output tokens.
+* Not hygienic by default.
 
 ```
-Tokens --[parse]--> AST --[logic]--> Tokens
+Tokens   --[parse]-->   AST   --[logic]-->   Tokens
 ```
 
 +++
@@ -178,7 +178,7 @@ fn do_something() {}
 For users:
 
 * 🎨 Better error messages.
-* 📓 Nicer syntax.
+* 📝 Nicer syntax.
 
 +++
 
@@ -186,10 +186,11 @@ For users:
 
 For developers:
 
-* 📦 Dedicated crate.
 * 🌲 Parsing AST instead of matching patterns.
-* 🔺 Somewhat better diagnostics.
+* 🔺 Can write procedural logic.
+* 🦀 Better diagnostics.
 * 💯 Easier to test.
+* 📦 Dedicated crate *(not a selling point)*.
 
 ---
 
@@ -202,9 +203,9 @@ For developers:
 Look like this:
 
 ```rust
-custom_macro!("args");
-custom_macro!["args", "more args"];
-custom_macro! {
+function_like!("args");
+function_like!["args", "more args"];
+function_like! {
     struct Struct {}
 }
 ```
@@ -213,8 +214,8 @@ custom_macro! {
 
 ### Function Like
 
-1. Takes in *any* well-formed tokens.
-2. Outputs other tokens that are compiled.
+1. Takes in any well-formed tokens.
+2. Outputs replacement tokens.
 
 +++
 
@@ -487,11 +488,27 @@ pub enum SubCommands {
 
 ---
 
-### Summary
+### Informative
 
 +++
 
-### Summary
+### Informative
+
+What you can't do:
+
+* *Parse* `Path`s in attributes:
+
+    ```rust
+    // Can write, cannot parse with `syn` 0.15
+    #[derive(derive_more::Add)]
+    pub struct HealthPoints(pub u32);
+    ```
+
+* Output warnings with span information.
+
++++
+
+### Informative
 
 |               | Derive    | Function      | Attribute   |
 | ------------- | --------- | ------------- | ----------- |
